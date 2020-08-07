@@ -57,6 +57,22 @@ def _load_nav_textfile() -> str:
     """
     return requests.get(AMFI_NAV_ALL_URL).text
 
+def _parse_fund_string(schema: List[str], fund_str: str) -> Fund:
+    """Parse a mutual fund scheme string delimited by ;
+    Returns
+    -------
+    Fund:
+        fund information 
+    """
+    fund_info_raw = fund_str.split(';')
+    fund_dict = {
+        DATACLASS_AMFI_NAMES_TRANSFORMS[key]: val
+        for key, val in zip(schema, fund_info_raw)
+    }
+
+    fund = Fund(**fund_dict)
+    return fund
+
 def parse_nav_file_lines(raw_data: str) -> Dict[str, Fund]:
     """Parse lines in the NAV File.
 
@@ -85,16 +101,6 @@ def parse_nav_file_lines(raw_data: str) -> Dict[str, Fund]:
 
     parsed_funds = dict()
     schema = curr_line().split(';')
-
-    def _parse_fund_string(schema: List[str], fund_str: str) -> Fund:
-        v = fund_str.split(';')
-        fund_dict = dict()
-
-        for key, val in zip(schema, v):
-            fund_dict[DATACLASS_AMFI_NAMES_TRANSFORMS[key]] = val
-
-        fund = Fund(**fund_dict)
-        return fund
 
     next_line()
     next_line()
